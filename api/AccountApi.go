@@ -204,13 +204,15 @@ func (aa *AccountApi) Handle_KcDatas(p *core.Player) {
 	var g_gameUrl sql.NullString
 	var g_resVersion sql.NullString
 	db := utils.GlobalObject.SqliteInst.GetDB()
-	rows, err := db.Query("select ID,courseName, iconName,courseID,courseType,courseOwner,inCourseType,inCourseTypeSort,thirdType,ThirdMsg,md5,gameUrl,resVersion from tb_course")
+	rows, err := db.Query("select ID,courseName, iconName,courseID,courseType," +
+		"courseOwner,inCourseType,inCourseTypeSort,thirdType,ThirdMsg,md5,gameUrl,resVersion from tb_course")
 	if err != nil {
 		fmt.Println("Sqlite Handle_KcFl Query DB Err")
 	} else {
 		defer rows.Close()
 		for rows.Next() {
-			if err := rows.Scan(&localCourseData.ID, &localCourseData.Name, &localCourseData.IconName, &localCourseData.CourseID, &localCourseData.CourseType, &localCourseData.CourseOwner,
+			if err := rows.Scan(&localCourseData.ID, &localCourseData.Name, &localCourseData.IconName, &localCourseData.CourseID, &localCourseData.CourseType,
+				&localCourseData.CourseOwner,
 				&localCourseData.InCourseType, &localCourseData.InCourseTypeSort, &localCourseData.ThirdType, &localCourseData.ThirdMsg, &g_md5,
 				&g_gameUrl, &g_resVersion); err == nil {
 
@@ -220,7 +222,7 @@ func (aa *AccountApi) Handle_KcDatas(p *core.Player) {
 
 				allLocalCourse.LocalCourseArr = append(allLocalCourse.LocalCourseArr, localCourseData)
 			} else {
-				log.Println("Mysql_GetLocalCourseData,", err)
+				log.Println("Mysql_GetLocalCourseData ===== ,", err.Error())
 			}
 		}
 	}

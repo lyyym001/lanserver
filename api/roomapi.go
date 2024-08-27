@@ -206,13 +206,13 @@ func (aa *RoomApi) Handle_UpdateCourse(p *core.Player, data []byte) {
 	db := utils.GlobalObject.SqliteInst.GetDB()
 	stmt, err := db.Prepare("UPDATE tb_course SET md5=?,gameUrl=?,resVersion=?,iconName=?,courseName=?,courseType=? WHERE courseID = ?")
 	if err != nil {
-		fmt.Println("Sqlite Handle_UpdateCourse Update DB Err")
+		fmt.Println("Sqlite Handle_UpdateCourse Update DB Err : ", err.Error())
 	} else {
 		defer stmt.Close()
 		_, err := stmt.Exec(CourseData.Md5, CourseData.GameUrl, CourseData.ResVersion, CourseData.GameIcoPath, CourseData.GameName, CourseData.VersionNo, CourseData.CourseID)
 		//affectNum, err := result.RowsAffected()
 		if err != nil {
-			fmt.Println("Sqlite Handle_UpdateCourse DB Err")
+			fmt.Println("Sqlite Handle_UpdateCourse DB Err 1")
 		}
 		//fmt.Println("update affect rows is ", affectNum)
 	}
@@ -228,15 +228,16 @@ func (aa *RoomApi) Handle_AddCourse(p *core.Player, data1 []byte) {
 
 	// (2) 更新
 	db := utils.GlobalObject.SqliteInst.GetDB()
+	fmt.Println("data = ", data.ThirdMsg, " - md5 = ", data.Md5)
 	stmt, err := db.Prepare("insert into tb_course(courseName,iconName,courseID,courseType,courseOwner,inCourseType,inCourseTypeSort,thirdType,md5,gameUrl,resVersion) values(?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
-		fmt.Println("Sqlite Handle_UpdateCourse Update DB Err")
+		fmt.Println("Sqlite Handle_UpdateCourse Update DB Err : 1 = ", err.Error())
 	} else {
 		defer stmt.Close()
-		_, err := stmt.Exec(data.Name, data.IconName, data.CourseID, data.CourseType, data.CourseOwner, data.InCourseType, data.InCourseTypeSort, data.ThirdType, data.Md5, data.GameUrl, data.ResVersion)
+		_, err := stmt.Exec(data.Name, data.IconName, data.CourseID, data.CourseType, data.CourseOwner, data.InCourseType, data.InCourseTypeSort, data.ThirdType, data.ThirdMsg, data.GameUrl, data.ResVersion)
 		//affectNum, err := result.RowsAffected()
 		if err != nil {
-			fmt.Println("Sqlite Handle_UpdateCourse DB Err")
+			fmt.Println("Sqlite Handle_UpdateCourse DB Err : 2 = ", err.Error())
 		}
 		//fmt.Println("update affect rows is ", affectNum)
 	}
@@ -292,7 +293,7 @@ func (aa *RoomApi) Handle_OpenCourse(p *core.Player, data []byte) {
 
 		stmt, err := db.Prepare("UPDATE tb_user SET isTeacherClose=?")
 		if err != nil {
-			fmt.Println("Sqlite Handle_CloseCourse Update DB Err")
+			fmt.Println("Sqlite Handle_CloseCourse Update DB Err - 1 : ", err.Error())
 		} else {
 			defer stmt.Close()
 			_, err := stmt.Exec(1, "0")
@@ -304,7 +305,7 @@ func (aa *RoomApi) Handle_OpenCourse(p *core.Player, data []byte) {
 		}
 
 		data1, _ := json.Marshal(sendData)
-
+		fmt.Println("md5 = ", sendData.Md5, " courseID = ", sendData.CourseID)
 		//学生列表
 
 		//find := strings.Contains(sendData.Md5, ".")

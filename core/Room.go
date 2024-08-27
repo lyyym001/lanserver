@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lanserver/lframework/utils"
 	"lanserver/pb"
+	"log"
 	"net"
 	"strings"
 	"sync"
@@ -230,8 +231,24 @@ func (cRoom *Room) GetMd5ByCourseId(courseId string) string {
 			return value.Extras
 		}
 	}
-	fmt.Println("找不到当前课程")
-	return ""
+
+	//找不到从数据库在找
+	var _md5 string = ""
+	db := utils.GlobalObject.SqliteInst.GetDB()
+	rows, _ := db.Query("select MD5 from tb_course where courseID = ?", courseId)
+	defer rows.Close()
+	for rows.Next() {
+		if err := rows.Scan(&_md5); err == nil {
+			//allStudent.Students = append(allStudent.Students, studentInfo)
+		} else {
+			log.Println("Mysql_GetTeacherSourse,", err)
+		}
+	}
+	if len(_md5) == 0 {
+		fmt.Println("找不到当前课程")
+	}
+
+	return _md5
 }
 
 func (cRoom *Room) GetCourseNameByCourseId(courseId string) string {

@@ -50,7 +50,7 @@ func NewServer(opts ...Option) ziface.IServer {
 	}
 
 	if true == utils.GlobalObject.SqliteUse {
-		//fmt.Println("sqlitepath = ",utils.GlobalObject.SqlitePath)
+		fmt.Println("sqlitepath = ", utils.GlobalObject.SqlitePath)
 		utils.GlobalObject.SqliteInst = NewSqliteHandle(utils.GlobalObject.SqlitePath)
 	}
 

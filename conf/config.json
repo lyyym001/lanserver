@@ -9,5 +9,6 @@
   "SqlitePath":"H:\\AFullProgram\\GoProgram\\program\\src\\lyyym\\gameframework\\education.db",
   "UdpPort": 10108,
   "MaxPacketSize": 0,
-  "TCPPort": 10106
+  "TCPPort": 10106,
+  "Host": "192.168.0.22"
 }
