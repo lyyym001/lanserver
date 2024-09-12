@@ -221,6 +221,7 @@ func (c *Connection) SendMsg(msgID uint32, msgSub uint32, data []byte) error {
 		fmt.Println("[SendMsg To Client] : msgID = ", msgID, " msgSub = ", msgSub, " NowDate = ", time.Now().Format("2006-01-02 15:04:05"))
 	}
 	//写回客户端
+	//fmt.Println("sendchannel,msg.len = ", len(msg), msg)
 	c.msgChan <- msg
 
 	return nil

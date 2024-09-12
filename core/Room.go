@@ -98,7 +98,7 @@ func SendUdpBroadcastToStudent(tid string) {
 	//log.Println("SendUdpBroadcast To Student")
 
 	laddrStu := net.UDPAddr{
-		IP:   LocalIp(),
+		IP:   net.ParseIP(utils.GlobalObject.Host), //LocalIp(),
 		Port: utils.GlobalObject.UdpPort,
 	}
 
@@ -107,7 +107,7 @@ func SendUdpBroadcastToStudent(tid string) {
 		IP:   net.IPv4(255, 255, 255, 255),
 		Port: utils.GlobalObject.UdpPort,
 	}
-	//fmt.Println("SendUdpBroadcast To Student raddrStu = ",laddrStu," raddrStu = ",raddrStu)
+	//fmt.Println("SendUdpBroadcast To Student raddrStu = ", laddrStu, " raddrStu = ", raddrStu)
 	connStu, err := net.DialUDP("udp", &laddrStu, &raddrStu)
 	if err != nil {
 		println(err.Error())
@@ -125,7 +125,7 @@ func (rm *Room) SendUdpBroadcastToStudent_CloseCourse() {
 	//log.Println("SendUdpBroadcast To Student")
 
 	laddrStu := net.UDPAddr{
-		IP:   LocalIp(),
+		IP:   net.ParseIP(utils.GlobalObject.Host),
 		Port: 10109, //utils.GlobalObject.UdpPortDir,
 	}
 
@@ -141,7 +141,7 @@ func (rm *Room) SendUdpBroadcastToStudent_CloseCourse() {
 		return
 	}
 
-	fmt.Println("UDP QuitCourse ,laddrStu = ", laddrStu, " raddrStu = ", raddrStu)
+	//fmt.Println("UDP QuitCourse ,laddrStu = ", laddrStu, " raddrStu = ", raddrStu)
 
 	connStu.Write([]byte("QuitCourse"))
 	connStu.Close()

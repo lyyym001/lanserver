@@ -73,7 +73,7 @@ func (p *Player) Login(data *pb.SyncLogin) {
 		}
 
 		//学生增加一个心跳
-		go p.BroadcastPlayer()
+		//go p.BroadcastPlayer()
 
 	} else {
 
@@ -175,7 +175,7 @@ func (p *Player) SyncPID() {
 	data1, _ := json.Marshal(&pb.SyncPID{PID: p.PID})
 	//
 	////发送数据给客户端
-	fmt.Println("发送PID", p.PID)
+	fmt.Println("发送PID", p.PID, len(data1))
 	p.SendMsg(1, 10001, data1)
 
 	////
@@ -256,21 +256,39 @@ func (p *Player) LostConnection() {
 
 	//如果是学生需要通知老师，学生断开了连接
 	if p.CID != p.TID {
-		player := RoomMgrObj.GetTPlayer(p.TID)
-		if player != nil {
-			data1, _ := json.Marshal(&pb.StudentInfo{StuUserName: p.CID, Flag: 0})
-			//
-			////发送数据给客户端
-			player.SendMsg(1, 10007, data1)
-		}
 
-		//清除房间信息
-		cRoom := RoomMgrObj.GetRoom(p.TID)
-		if cRoom != nil {
-			//delete(cRoom.ClientAccount, p.CID)
-			delete(cRoom.ClientSNum, p.SNum)
-		}
+		var cf bool = false
+		fmt.Println("=p=", p.CID, p.PID)
+		//老师进来，同步学生状态
+		players := RoomMgrObj.GetAllPlayers(p.TID)
+		if players != nil {
+			for _, player := range players {
 
+				fmt.Println("=o=", player.CID, player.PID)
+				if player.CID == p.CID && player.PID != p.PID {
+					cf = true
+					break
+				}
+
+			}
+		}
+		fmt.Println("=cf=", cf)
+		if !cf {
+			player := RoomMgrObj.GetTPlayer(p.TID)
+			if player != nil {
+				data1, _ := json.Marshal(&pb.StudentInfo{StuUserName: p.CID, Flag: 0})
+				//
+				////发送数据给客户端
+				player.SendMsg(1, 10007, data1)
+			}
+
+			//清除房间信息
+			cRoom := RoomMgrObj.GetRoom(p.TID)
+			if cRoom != nil {
+				//delete(cRoom.ClientAccount, p.CID)
+				delete(cRoom.ClientSNum, p.SNum)
+			}
+		}
 	}
 
 	//4 从房间中移出
@@ -539,6 +557,7 @@ func (p *Player) SendMsg(msgID uint32, msgSub uint32, data []byte) {
 	}
 
 	//调用Zinx框架的SendMsg发包
+	//fmt.Println("data.len = ", len(data))
 	if err := p.Conn.SendMsg(msgID, msgSub, data); err != nil {
 		fmt.Println("Player SendMsg error !")
 		return

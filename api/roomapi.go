@@ -169,7 +169,7 @@ func (aa *RoomApi) Handle_TeacherData(p *core.Player, data []byte) {
 	json.Unmarshal(data, msg)
 	rm.AllCourses = msg.AllCourses
 
-	fmt.Println("[2-20001]记录老师的课程信息 data = ", msg.AllCourses)
+	fmt.Println("[2-20001]记录老师的课程信息 课程数量 = ", len(msg.AllCourses))
 }
 
 // 老师删除一个第三方课程 237 - > 2 - 10002
@@ -967,7 +967,7 @@ func (aa *RoomApi) Handle_onClientBatteryAndSpace(p *core.Player, data []byte) {
 	}
 
 	//数据
-	fmt.Println("[2-20025]学生更改密码 rData = ", rData)
+	fmt.Println("[2-20025]更新电池电量 rData = ", rData)
 
 }
 
