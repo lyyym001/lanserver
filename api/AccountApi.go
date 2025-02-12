@@ -86,7 +86,7 @@ func (aa *AccountApi) Handle(request ziface.IRequest) {
 	case 10009: //学生端心跳
 		//给老师回传 年级分类信息列表数据
 		player.BeatTime = int(time.Now().Unix())
-		fmt.Println("收到心跳 ： ", player.PID, player.CID, player.TID)
+		//fmt.Println("收到心跳 ： ", player.PID, player.CID, player.TID)
 		player.SendMsg(1, 10009, request.GetData())
 		break
 	}

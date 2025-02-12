@@ -32,7 +32,7 @@ func (ra *RoomApi) Handle(request ziface.IRequest) {
 		return
 	}
 	//3. 根据pID得到player对象
-	fmt.Println("pID ---  = ", pID)
+	//fmt.Println("pID ---  = ", pID)
 	player := core.WorldMgrObj.GetPlayerByPID(pID.(int32))
 	if player == nil {
 		return
@@ -940,6 +940,7 @@ func (aa *RoomApi) Handle_onClientShutdown(p *core.Player, data []byte) {
 	players := core.RoomMgrObj.GetAllPlayers(p.TID)
 	if players != nil {
 		for _, player := range players {
+			fmt.Println("关机 cid = ", player.CID)
 			player.SendMsg(2, 20024, data)
 		}
 	}
