@@ -154,7 +154,9 @@ func (ra *RoomApi) Handle(request ziface.IRequest) {
 	case 20035: //关闭录屏
 		ra.Handle_onClientLpClose(player, request.GetData())
 		break
-
+	case 20036: //开启/关闭 静音/黑屏/护眼
+		ra.Handle_onTurnOnOrOffStatus(player, request.GetData())
+		break
 		//
 	}
 
@@ -1184,5 +1186,41 @@ func (aa *RoomApi) Handle_onClientLpClose(p *core.Player, data []byte) {
 
 	//数据
 	fmt.Println("[2-20035]通知学生结束录屏 data = ", data)
+
+}
+
+// 开启/关闭游戏状态
+func (aa *RoomApi) Handle_onTurnOnOrOffStatus(p *core.Player, data []byte) {
+
+	msg := &pb.Sync_GameStatus{}
+	json.Unmarshal(data, msg)
+	call := &pb.Sync_GameStatusBack{Code: 1}
+
+	if msg != nil {
+		if msg.Type < 1 || msg.Status < 0 {
+			call.Code = -1
+			callData, _ := json.Marshal(call)
+			p.SendMsg(2, 20036, callData)
+			return
+		}
+		code := core.RoomMgrObj.RefrushGameStatus(msg)
+		//通知老师操作结果
+		call.Code = code
+		callData, _ := json.Marshal(call)
+		p.SendMsg(2, 20036, callData)
+		if code == 1 {
+			//通知学生操作结果
+			players := core.RoomMgrObj.GetAllPlayers(p.TID)
+			if players != nil {
+				for _, player := range players {
+					if player.CID != p.CID {
+						p.SendMsg(2, 20036, data)
+					}
+				}
+			}
+		}
+	}
+	//数据
+	fmt.Println("[2-20036]更新学生全局状态 data = ", data)
 
 }

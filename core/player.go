@@ -93,7 +93,13 @@ func (p *Player) Login(data *pb.SyncLogin) {
 	//用户自己登录回调
 	Room := RoomMgrObj.GetRoom(p.TID)
 	if Room != nil {
-		data1, _ := json.Marshal(&pb.SyncLoginB{CtrlFlag: Room.CtrlFlag, Code: "success"})
+		data1, _ := json.Marshal(
+			&pb.SyncLoginB{
+				CtrlFlag: Room.CtrlFlag, Code: "success",
+				Mute:          RoomMgrObj.GlobalStatus.Mute,
+				BlackScreen:   RoomMgrObj.GlobalStatus.BlackScreen,
+				EyeProtection: RoomMgrObj.GlobalStatus.EyeProtection,
+			})
 		////发送数据给客户端
 		p.SendMsg(1, 10002, data1)
 	}
