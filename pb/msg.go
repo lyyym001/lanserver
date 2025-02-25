@@ -396,3 +396,22 @@ type Sync_GameStatus struct {
 type Sync_GameStatusBack struct {
 	Code int //0-重复设置 -1-参数错误 1-设置成功
 }
+
+// 本地课程信息
+type CleverData struct {
+	CourseName string //课程名称
+	CourseID   string //课程ID
+}
+
+// 状态更新
+type Sync_CleverCall struct {
+	Code int   //0-作品已经存在 1-成功
+	Id   int64 //作品dbid
+}
+
+// 本地课程信息更新
+type CleverData_Update struct {
+	CourseName string //课程名称
+	CourseID   string //课程ID
+	Id         int64  //作品dbid
+}

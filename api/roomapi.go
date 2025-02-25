@@ -227,19 +227,49 @@ func (aa *RoomApi) Handle_AddCourse(p *core.Player, data1 []byte) {
 
 	data := &pb.CoursewareData{}
 	json.Unmarshal(data1, data)
+	var sid string = ""
+	call := &pb.Sync_CleverCall{Code: 0}
+	db := utils.GlobalObject.SqliteInst.GetDB()
+	rows1, err1 := db.Query("select courseID from tb_course where courseID = ? ", data.CourseID)
+	defer rows1.Close()
+	if err1 == nil {
+		for rows1.Next() {
+			if err := rows1.Scan(&sid); err == nil {
+
+			} else {
+				log.Println("Handle_onGetReportBySname,", err)
+			}
+		}
+	}
+	fmt.Println("[3-20004]添加灵创课程 sid = ,", sid)
+	if len(sid) > 0 {
+		fmt.Println("[3-20004]添加灵创课程 err = 作品已经存在,", data.CourseID)
+		data1, _ := json.Marshal(call)
+		p.SendMsg(2, 20004, data1)
+		return //作品已经存在
+	}
 
 	// (2) 更新
-	db := utils.GlobalObject.SqliteInst.GetDB()
 	fmt.Println("data = ", data.ThirdMsg, " - md5 = ", data.Md5)
 	stmt, err := db.Prepare("insert into tb_course(courseName,iconName,courseID,courseType,courseOwner,inCourseType,inCourseTypeSort,thirdType,md5,gameUrl,resVersion) values(?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
 		fmt.Println("Sqlite Handle_UpdateCourse Update DB Err : 1 = ", err.Error())
 	} else {
-		defer stmt.Close()
-		_, err := stmt.Exec(data.Name, data.IconName, data.CourseID, data.CourseType, data.CourseOwner, data.InCourseType, data.InCourseTypeSort, data.ThirdType, data.ThirdMsg, data.GameUrl, data.ResVersion)
+
+		res, err := stmt.Exec(data.Name, data.IconName, data.CourseID, data.CourseType, data.CourseOwner, data.InCourseType, data.InCourseTypeSort, data.ThirdType, data.ThirdMsg, data.GameUrl, data.ResVersion)
 		//affectNum, err := result.RowsAffected()
 		if err != nil {
 			fmt.Println("Sqlite Handle_UpdateCourse DB Err : 2 = ", err.Error())
+		} else {
+			//拿到插入的数据库ID
+			//res, _ := stmt.Exec(data.CourseID)
+			fmt.Println("res = ", res)
+			_id, _ := res.LastInsertId()
+			call.Code = 1
+			call.Id = _id
+			fmt.Println("[3-20004]添加灵创课程 , 作品已添加成功 ， ID = ", _id, call)
+			data1, _ := json.Marshal(call)
+			p.SendMsg(2, 20004, data1)
 		}
 		//fmt.Println("update affect rows is ", affectNum)
 	}
@@ -739,7 +769,7 @@ func (aa *RoomApi) Handle_GetStus(p *core.Player, data []byte) {
 	db := utils.GlobalObject.SqliteInst.GetDB()
 	rows, err := db.Query("select snum,pname,class from tb_snum where Tid=?", p.TID)
 	if err != nil {
-		fmt.Println("Sqlite Handle_GetStus Query DB Err")
+		fmt.Println("Sqlite Handle_GetStus Query DB Err", err.Error())
 	} else {
 		defer rows.Close()
 		for rows.Next() {
@@ -1195,15 +1225,17 @@ func (aa *RoomApi) Handle_onTurnOnOrOffStatus(p *core.Player, data []byte) {
 	msg := &pb.Sync_GameStatus{}
 	json.Unmarshal(data, msg)
 	call := &pb.Sync_GameStatusBack{Code: 1}
-
+	fmt.Println("[2-20036] param = ", msg, " serverStatus = ", core.RoomMgrObj.GlobalStatus)
 	if msg != nil {
 		if msg.Type < 1 || msg.Status < 0 {
 			call.Code = -1
 			callData, _ := json.Marshal(call)
+			fmt.Println("[2-20036] err code = -1")
 			p.SendMsg(2, 20036, callData)
 			return
 		}
 		code := core.RoomMgrObj.RefrushGameStatus(msg)
+		fmt.Println("[2-20036] refrush code = ", code)
 		//通知老师操作结果
 		call.Code = code
 		callData, _ := json.Marshal(call)
@@ -1213,8 +1245,10 @@ func (aa *RoomApi) Handle_onTurnOnOrOffStatus(p *core.Player, data []byte) {
 			players := core.RoomMgrObj.GetAllPlayers(p.TID)
 			if players != nil {
 				for _, player := range players {
+					fmt.Println("[2-20036] checkSend = ", player.CID, p.CID)
 					if player.CID != p.CID {
-						p.SendMsg(2, 20036, data)
+						fmt.Println("[2-20036] sendmsg player = ", data)
+						player.SendMsg(2, 20036, data)
 					}
 				}
 			}

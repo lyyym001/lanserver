@@ -88,6 +88,12 @@ func (ca *CourseApi) Handle(request ziface.IRequest) {
 	case 30017: //本地课程数据
 		ca.Handle_SendScoreToTeacher(player, request.GetData())
 		break
+	case 30018:
+		ca.Handle_onAddCleverData(player, request.GetData())
+		break
+	case 30019:
+		ca.Handle_UpdateCleverCourse(player, request.GetData())
+		break
 	}
 
 }
@@ -586,4 +592,86 @@ func (aa *CourseApi) Handle_SendScoreToTeacher(p *core.Player, data []byte) {
 	}
 	fmt.Println("[3-30017]重启Create-x课程 分数 = ", len(data1))
 
+}
+
+// 添加灵创课程
+func (aa *CourseApi) Handle_onAddCleverData(p *core.Player, data []byte) {
+
+	getData := &pb.CleverData{}
+	json.Unmarshal(data, getData)
+	var sid string = ""
+	call := &pb.Sync_CleverCall{Code: 0}
+
+	db := utils.GlobalObject.SqliteInst.GetDB()
+	rows1, err1 := db.Query("select courseID from tb_course where courseID = ? ", getData.CourseID)
+	defer rows1.Close()
+	if err1 == nil {
+		for rows1.Next() {
+			if err := rows1.Scan(&sid); err == nil {
+
+			} else {
+				log.Println("Handle_onGetReportBySname,", err)
+			}
+		}
+	}
+	fmt.Println("[3-30018]添加灵创课程 sid = ,", sid)
+	if len(sid) > 0 {
+		fmt.Println("[3-30018]添加灵创课程 err = 作品已经存在,", getData.CourseID)
+		data, _ := json.Marshal(call)
+		p.SendMsg(3, 30018, data)
+		return //作品已经存在
+	}
+
+	stmt, err := db.Prepare("insert into tb_course(courseName,courseID,courseType,inCourseType,InCourseTypeSort,md5,resVersion,gameUrl) values(?,?,?,?,?,?,?,?)")
+	if err == nil {
+		stmt.Exec(getData.CourseName, getData.CourseID, 999, "1,2,3,4", "56,112,63,10", "", 1, "")
+		//拿到插入的数据库ID
+		res, _ := stmt.Exec(getData.CourseID)
+		_id, _ := res.LastInsertId()
+		call.Code = 1
+		call.Id = _id
+		fmt.Println("[3-30018]添加灵创课程 err = 作品已添加成功 ， ID = ", _id)
+		data, _ := json.Marshal(call)
+		p.SendMsg(3, 30018, data)
+	} else {
+		log.Println("Mysql_AddLocalCourseData,", err)
+		//	return 0
+	}
+
+	fmt.Println("[3-30018]添加灵创课程 回执 = ", call)
+
+}
+
+// 更新灵创课程
+func (aa *CourseApi) Handle_UpdateCleverCourse(p *core.Player, data []byte) {
+
+	CourseData := &pb.CleverData_Update{}
+	json.Unmarshal(data, CourseData)
+	call := &pb.Sync_CleverCall{Code: 0}
+	call.Id = CourseData.Id
+	fmt.Println("[3-30019]更新灵创课程 请求参数 = ", CourseData)
+	// (2) 更新
+	db := utils.GlobalObject.SqliteInst.GetDB()
+	stmt, err := db.Prepare("UPDATE tb_course SET courseID=?,courseName=? WHERE ID = ?")
+	if err != nil {
+		fmt.Println("Sqlite Handle_UpdateCourse Update DB Err : ", err.Error())
+		data, _ := json.Marshal(call)
+		p.SendMsg(3, 30019, data)
+		return
+	} else {
+		defer stmt.Close()
+		_, err := stmt.Exec(CourseData.CourseID, CourseData.CourseName, CourseData.Id)
+		//affectNum, err := result.RowsAffected()
+		if err != nil {
+			fmt.Println("Sqlite Handle_UpdateCourse DB Err 1")
+			data, _ := json.Marshal(call)
+			p.SendMsg(3, 30019, data)
+			return
+		}
+		//fmt.Println("update affect rows is ", affectNum)
+	}
+	call.Code = 1
+	data2, _ := json.Marshal(call)
+	p.SendMsg(3, 30019, data2)
+	fmt.Println("[3-30019]更新灵创课程 回执 = ", call)
 }

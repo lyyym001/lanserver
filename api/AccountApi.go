@@ -51,7 +51,7 @@ func (aa *AccountApi) Handle(request ziface.IRequest) {
 			aa.Handle_GetStus(player)
 			aa.Handle_NjFl(player)
 			aa.Handle_KcFl(player)
-			aa.Handle_KcDatas(player)
+			aa.Handle_KcDatas(player) //课程数据
 		}
 
 		////这里限制用户不能重复登录
@@ -102,7 +102,7 @@ func (aa *AccountApi) Handle_GetStus(p *core.Player) {
 	db := utils.GlobalObject.SqliteInst.GetDB()
 	rows, err := db.Query("select snum,pname,class from tb_snum where Tid=?", p.TID)
 	if err != nil {
-		fmt.Println("Sqlite Handle_GetStus Query DB Err")
+		fmt.Println("Sqlite Handle_GetStus Query DB Err", err.Error())
 	} else {
 		defer rows.Close()
 		for rows.Next() {
@@ -227,7 +227,7 @@ func (aa *AccountApi) Handle_KcDatas(p *core.Player) {
 		}
 	}
 
-	//fmt.Println("老师回执本地课程信息列表 = " , allLocalCourse)
+	fmt.Println("老师回执本地课程信息列表 = ", allLocalCourse)
 
 	//序列化数据
 	data, _ := json.Marshal(allLocalCourse)

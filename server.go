@@ -9,7 +9,6 @@ import (
 
 	"lanserver/api"
 	"lanserver/core"
-	"os"
 	"strings"
 )
 
@@ -71,13 +70,14 @@ func main() {
 	s.SetOnConnStop(OnConnectionLost)
 
 	//启动本地老师端
-	print("Start Up TClient\n")
-	_, err := os.StartProcess("StartTClient.bat", nil, &os.ProcAttr{Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}})
-	if err != nil {
-		print("TClient Started Error\n")
-	} else {
-		print("TClient Started Succ\n")
-	}
+	//print("Start Up TClient\n")
+	//_, err := os.StartProcess("StartTClient.bat", nil, &os.ProcAttr{Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}})
+	//if err != nil {
+	//	print("TClient Started Error\n")
+	//} else {
+	//	print("TClient Started Succ\n")
+	//}
+
 	//test()
 	//注册路由
 

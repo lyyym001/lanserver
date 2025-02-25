@@ -119,7 +119,7 @@ func (wm *RoomManager) RefrushGameStatus(parameter *pb.Sync_GameStatus) int {
 		if parameter.Status == wm.GlobalStatus.EyeProtection {
 			return 0
 		}
-		wm.GlobalStatus.BlackScreen = parameter.Status
+		wm.GlobalStatus.EyeProtection = parameter.Status
 	} else {
 		return -1
 	}

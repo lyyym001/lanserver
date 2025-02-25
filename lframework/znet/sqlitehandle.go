@@ -28,7 +28,7 @@ func (sqlite *SqliteHandle) Connect(dbPath string) {
 		return
 	}
 
-	fmt.Println("3.dbOpened")
+	fmt.Println("3.dbOpened,path = ", dbPath)
 
 	sqlite.DB = db
 	sqlite.DB.SetMaxOpenConns(2000) //用于设置最大打开的连接数，默认值为0表示不限制。
