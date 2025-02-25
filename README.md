@@ -10,7 +10,9 @@
     go env -w GOOS=linux
     go env -w GOARCH=amd64
     go env -w CGO_ENABLED=0
-
+    lanserver在本地虚拟机linux环境下编译(192.168.0.223)
+    go build -o ./linux/LanServer ./server.go
+    输出路径在：/home/lanserver/lanserver/linux/...
 
 ## 接口
 ### 1.开启关闭 游戏状态
